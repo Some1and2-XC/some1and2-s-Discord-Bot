@@ -5,12 +5,15 @@
 # Builtins
 
 import os
+from re import T
 import time
 import random
 
 # Pip Commands
 
-import discord
+import nextcord
+from nextcord import *
+from nextcord.ext import *
 from dotenv import load_dotenv
 
 # Made Commands
@@ -30,7 +33,12 @@ TestMode = False
 
 Channels = {"LogChannel" : [False], "CasinoState" : [False], "BlackJackTable" : [False]}
 
-client = discord.Client()
+client = nextcord.Client()
+serverIDS = []
+TopPermissionValues = ["Some1and2#2570", "zanekyber#9825", "Spike#6128", "Bardock#4474", "Vintheruler1#7617"]
+EmptyPoints = {'POG': 0, 'KEK': 0, 'SUS': 0, 'IQ': 0, 'COOKIES': 0, 'COOKIE-DATE': 0, 'NUTS': 0, 'TOTAL-NUTS': 0, 'RPG':{}}
+CommandList = ["POG", "KEK", "SUS", "IQ", "COOKIES", "COOKIE", "NUT", "NUTS", "TOTAL-NUTS"]
+ReactionEmojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
 
 @client.event
 async def on_ready():
@@ -42,6 +50,12 @@ async def on_ready():
         f'{client.user} is connected to the following guild:\n'
         f'{guild.name}(id: {guild.id})'
     )
+    client.add_startup_application_commands()
+    await client.rollout_application_commands()
+    for guild in client.guilds:
+        serverIDS.append(guild.id)
+
+
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -52,19 +66,37 @@ async def on_raw_reaction_add(payload):
             if payload.member in await i.users().flatten() and not payload.member.bot and str(i) != str(payload.emoji):
                 await message.remove_reaction(i.emoji, payload.member)
 
+@client.slash_command(name="test", description="Testing slash command.", guild_ids=serverIDS)
+async def test(interaction: Interaction):
+    await interaction.response.send_message("testing testing 123")
+
+@client.slash_command(name="pspspsps", description="pspspsps",guild_ids=serverIDS)
+async def pspspsps(interaction: Interaction):
+    if str(interaction.user) in TopPermissionValues:
+        with open("points.plk", "rb") as file:
+                    member = interaction.user
+                    chan = await member.create_dm()
+                    try:
+                        await chan.send("Here are the points: ", file=nextcord.File(file, "points.plk"))
+                        await interaction.response.send_message("Please check your DMS for the file.", ephemeral=True)
+                        #MAKE IT SEND IN THE USER DMS
+                        file.close()
+                    except Exception as e:
+                        await interaction.response.send_message(f"An error has occured: \n{e}")
+        print(str(interaction.user.id) + " backed up point file")
+        
+        return
+    else:
+        await interaction.response.send_message("You are not in the TopPermission value!")
+
 @client.event
 async def on_message(message):
     global Channels, EmptyPoints, UserCards, CpuCards
     if message.author != client.user:
 
-        TopPermissionValues = ["Some1and2#2570", "zanekyber#9825", "Spike#6128", "Bardock#4474"]
-        EmptyPoints = {'POG': 0, 'KEK': 0, 'SUS': 0, 'IQ': 0, 'COOKIES': 0, 'COOKIE-DATE': 0, 'NUTS': 0, 'TOTAL-NUTS': 0, 'RPG':{}}
-        CommandList = ["POG", "KEK", "SUS", "IQ", "COOKIES", "COOKIE", "NUT", "NUTS", "TOTAL-NUTS"]
-        ReactionEmojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
-
         if IfCommand(message, "pspspsps", TestMode) and str(message.author) in TopPermissionValues:
             with open("points.plk", "rb") as file:
-                await message.author.send("Here are the points: ", file=discord.File(file, "points.plk"))
+                await message.author.send("Here are the points: ", file=nextcord.File(file, "points.plk"))
                 file.close()
             print(str(message.author.id) + " backed up point file")
             return
@@ -152,7 +184,7 @@ async def on_message(message):
                         await message.channel.send(f">>> <@!{user}> Profile too Long!")
 
                 elif str(ViewPoints(user)["PROFILE"]) != "0":
-                    await message.channel.send(f">>> <@!{UserID}> : `{ProfileData}`".format(UserID=user, ProfileData=ViewPoints(user)["PROFILE"]))
+                    await message.channel.send(">>> <@!{UserID}> : `{ProfileData}`".format(UserID=user, ProfileData=ViewPoints(user)["PROFILE"]))
                 else:
                     await message.channel.send(f">>> <@!{user}> Doesn't have a Profile Setup Yet!")
 
@@ -425,4 +457,7 @@ async def on_message(message):
                                             PointsAdd(message.author.id, "NUTS", WinAmnt)
                                             PointsAdd(message.author.id, "TOTAL-NUTS", WinAmnt)
 
-client.run(TOKEN)
+
+
+
+client.run("OTUxMjczMzc5NTg2MDExMTM2.YilEXw.o_-7uFkYiXZ6B6kEObZhbzyLri0")

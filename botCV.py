@@ -70,19 +70,21 @@ async def on_raw_reaction_add(payload):
 async def test(interaction: Interaction):
     await interaction.response.send_message("testing testing 123")
 
-@client.slash_command(name="pspspsps", description="pspspsps",guild_ids=serverIDS)
+@client.slash_command(name="pspspsps", description="Backing up the Points File",guild_ids=serverIDS)
 async def pspspsps(interaction: Interaction):
     if str(interaction.user) in TopPermissionValues:
         with open("points.plk", "rb") as file:
-                    member = interaction.user
-                    chan = await member.create_dm()
-                    try:
-                        await chan.send("Here are the points: ", file=nextcord.File(file, "points.plk"))
-                        await interaction.response.send_message("Please check your DMS for the file.", ephemeral=True)
-                        #MAKE IT SEND IN THE USER DMS
-                        file.close()
-                    except Exception as e:
-                        await interaction.response.send_message(f"An error has occured: \n{e}")
+            member = interaction.user
+            chan = await member.create_dm()
+            try:
+                await chan.send("Here are the points: ", file=nextcord.File(file, "points.plk"))
+                await interaction.response.send_message("Please check your DMS for the file.", ephemeral=True)
+                #MAKE IT SEND IN THE USER DMS
+            except Exception as e:
+                await interaction.response.send_message(f"An error has occured: \n{e}")
+
+            file.close()
+
         print(str(interaction.user.id) + " backed up point file")
         
         return
@@ -460,4 +462,4 @@ async def on_message(message):
 
 
 
-client.run("OTUxMjczMzc5NTg2MDExMTM2.YilEXw.o_-7uFkYiXZ6B6kEObZhbzyLri0")
+client.run(TOKEN)

@@ -5,7 +5,6 @@
 # Builtins
 
 import os
-from re import T
 import time
 import random
 

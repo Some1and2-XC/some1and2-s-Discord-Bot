@@ -3,6 +3,7 @@
 # Quality of Life
 
 import json
+from random import randint
 
 def ReturnPointsString(UserID, data):
 
@@ -42,18 +43,20 @@ def IndexToKey(Index):
 def DoesUserIDExist(UserID):
 	with open("points.plk", "r") as file:
 		data = json.loads(file.read())
+		file.close()
+	
+	if str(UserID) in data:
+		return True
 
-		if str(UserID) in data:
-			file.close()
-
-			return True
-
-		else:
-			file.close()
-			return False
+	else:
+		return False
 
 def IfCommand(MessageData, command, TestMode):
 	if MessageData.content.lower().startswith(command.lower()) and not TestMode:
 		return True
 	else:
 		return False
+
+def GetFifteenPercent(number):
+	1
+	return int(number * 0.01 * (85 + randint(0, 30)))

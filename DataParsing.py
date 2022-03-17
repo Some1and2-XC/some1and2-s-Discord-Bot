@@ -6,6 +6,7 @@ import re
 
 def ParseForNum(message, listOfCmds):
 	# Takes a Message and returns a number, command and user it is directed at
+	message = message.lower()
 	try:
 		num = re.findall(r"^[/-]?[0-9]+", message)[0]
 		usr = re.findall(r"[\<\@\!]+[0-9]+\>", message)[0]
@@ -35,7 +36,7 @@ def ParseForCmd(cmd, text):
 		return False
 
 def ParseForValue(cmd, text):
-	# Gets the text after a command
+	# Gets the text after a command !top iq, returns iq
 	try:
 		if text.startswith(str(cmd)):
 			return text.split(" ")[1]
@@ -61,4 +62,3 @@ def ParseForShopItem(cmd, text):
 
 	except:
 		return False
-

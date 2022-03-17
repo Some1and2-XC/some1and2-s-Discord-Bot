@@ -10,9 +10,7 @@ import random
 
 # Pip Commands
 
-import nextcord
-from nextcord import *
-from nextcord.ext import *
+import discord
 from dotenv import load_dotenv
 
 # Made Commands
@@ -21,8 +19,7 @@ from DataParsing import *
 from AjustingPoints import *
 from QualityOfLife import *
 from NPC import *
-
-# import NPC
+# from buttons import *
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -32,12 +29,7 @@ TestMode = False
 
 Channels = {"LogChannel" : [False], "CasinoState" : [False], "BlackJackTable" : [False]}
 
-client = nextcord.Client()
-serverIDS = []
-TopPermissionValues = ["Some1and2#2570", "zanekyber#9825", "Spike#6128", "Bardock#4474", "Vintheruler1#7617"]
-EmptyPoints = {'POG': 0, 'KEK': 0, 'SUS': 0, 'IQ': 0, 'COOKIES': 0, 'COOKIE-DATE': 0, 'NUTS': 0, 'TOTAL-NUTS': 0, 'RPG':{}}
-CommandList = ["POG", "KEK", "SUS", "IQ", "COOKIES", "COOKIE", "NUT", "NUTS", "TOTAL-NUTS"]
-ReactionEmojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
+client = discord.Client()
 
 @client.event
 async def on_ready():
@@ -49,12 +41,6 @@ async def on_ready():
         f'{client.user} is connected to the following guild:\n'
         f'{guild.name}(id: {guild.id})'
     )
-    client.add_startup_application_commands()
-    await client.rollout_application_commands()
-    for guild in client.guilds:
-        serverIDS.append(guild.id)
-
-
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -65,39 +51,19 @@ async def on_raw_reaction_add(payload):
             if payload.member in await i.users().flatten() and not payload.member.bot and str(i) != str(payload.emoji):
                 await message.remove_reaction(i.emoji, payload.member)
 
-@client.slash_command(name="test", description="Testing slash command.", guild_ids=serverIDS)
-async def test(interaction: Interaction):
-    await interaction.response.send_message("testing testing 123")
-
-@client.slash_command(name="pspspsps", description="Backing up the Points File",guild_ids=serverIDS)
-async def pspspsps(interaction: Interaction):
-    if str(interaction.user) in TopPermissionValues:
-        with open("points.plk", "rb") as file:
-            member = interaction.user
-            chan = await member.create_dm()
-            try:
-                await chan.send("Here are the points: ", file=nextcord.File(file, "points.plk"))
-                await interaction.response.send_message("Please check your DMS for the file.", ephemeral=True)
-                #MAKE IT SEND IN THE USER DMS
-            except Exception as e:
-                await interaction.response.send_message(f"An error has occured: \n{e}")
-
-            file.close()
-
-        print(str(interaction.user.id) + " backed up point file")
-        
-        return
-    else:
-        await interaction.response.send_message("You are not in the TopPermission value!")
-
 @client.event
 async def on_message(message):
     global Channels, EmptyPoints, UserCards, CpuCards
     if message.author != client.user:
 
+        TopPermissionValues = ["Some1and2#2570", "zanekyber#9825", "Spike#6128", "Bardock#4474"]
+        EmptyPoints = {'POG': 0, 'KEK': 0, 'SUS': 0, 'IQ': 0, 'COOKIES': 0, 'COOKIE-DATE': 0, 'NUTS': 0, 'TOTAL-NUTS': 0, 'RPG':{}}
+        CommandList = ["POG", "KEK", "SUS", "IQ", "COOKIES", "COOKIE", "NUT", "NUTS", "TOTAL-NUTS"]
+        ReactionEmojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
+
         if IfCommand(message, "pspspsps", TestMode) and str(message.author) in TopPermissionValues:
             with open("points.plk", "rb") as file:
-                await message.author.send("Here are the points: ", file=nextcord.File(file, "points.plk"))
+                await message.author.send("Here are the points: ", file=discord.File(file, "points.plk"))
                 file.close()
             print(str(message.author.id) + " backed up point file")
             return
@@ -164,6 +130,7 @@ async def on_message(message):
                     for i in ReactionEmojis:
                         await data.add_reaction(i)
                 except:
+                    # print()
                     1
 
             return
@@ -185,7 +152,7 @@ async def on_message(message):
                         await message.channel.send(f">>> <@!{user}> Profile too Long!")
 
                 elif str(ViewPoints(user)["PROFILE"]) != "0":
-                    await message.channel.send(">>> <@!{UserID}> : `{ProfileData}`".format(UserID=user, ProfileData=ViewPoints(user)["PROFILE"]))
+                    await message.channel.send(f">>> <@!{UserID}> : `{ProfileData}`".format(UserID=user, ProfileData=ViewPoints(user)["PROFILE"]))
                 else:
                     await message.channel.send(f">>> <@!{user}> Doesn't have a Profile Setup Yet!")
 
@@ -235,51 +202,56 @@ async def on_message(message):
 
                     await message.channel.send(f"{OutMessage}")
 
+        if IfCommand(message, "+test", False):
+            sword = GetMelee("TEST_bronze_sword")
+            
+            if GiveMelee(sword, message.author.id):
+                await message.channel.send(">>> ```You got a FREE sword! NICE!```")
+
+            Zombie = GetEnemy("TEST_Zombie")
+
+            Zombie = EnemyView(GetEnemy("TEST_Zombie"), message)
+
+            OutMessage = Zombie.OnContact(message)
+
+            OutView = Zombie.view
+            view = View()
+
+            for Item in OutView:
+                view.add_item(Item)
+
+            await message.channel.send(content=OutMessage, view=view)
+
+            return
+
         rpgCMD = "+"
-        if IfCommand(message, rpgCMD, False):
+        if IfCommand(message, rpgCMD, TestMode):
             # if the message starts with the command string, do things but first removes the 'rpgCMD' of the message
             if len(rpgCMD) < len(message.content):
                 message.content = message.content[len(rpgCMD)::]
 
-                if IfCommand(message, "inventory", False):
-                    items = ViewItems(message.author.id)
-                    if len(items) != 0:
-                        LongestWord = 0
-                        for i in items:
-                            try:
-                                if len(i[0]["name"]) + len(str(i[1])) > LongestWord:
-                                    LongestWord = len(i[0]["name"]) + len(str(i[1]))
-                            except:
-                                # If this ever happens, there is probably an item that doesn't exist in the items.plk file
-                                print(LongestWord, i)
-                        # time.sleep(1)
-                        OutMessage = f">>> <@!{message.author.id}>'s **Inventory**: \n```" + "\n\n".join("{}{} x{} : {}".format(" " * (LongestWord - len(i[0]["name"]) - len(str(i[1]))), i[0]["name"], i[1], i[0]["description"]) for i in items) + "```"
+                if IfCommand(message, "inv", False):
+                    
+                    InventoryViewClass = InventoryView(message)
 
-                    else:
-                        OutMessage = f">>> <@!{message.author.id}> Doesn't have any Items"
+                    view=View()
 
-                    await message.channel.send(OutMessage)
+                    for Item in InventoryViewClass.view:
+                        view.add_item(Item)
 
-                # if IfCommand(message, "near", False):
-                    # command to see some NPC's and things that are around the player
+                    await message.channel.send(content=InventoryViewClass.content, view=view)
 
                 if IfCommand(message, "help", False):
                     1
-                    await message.channel.send(f">>> The New Commands are `{rpgCMD}inventory` and `{rpgCMD}shop`. To buy something from the shop just type `{rpgCMD}shop [item]`. ")
+                    # await message.channel.send(f">>> The New Commands are `{rpgCMD}inventory` and `{rpgCMD}shop`. To buy something from the shop just type `{rpgCMD}shop [item]`. ")
 
                 area = "castle"
                 if area == "castle":
                     
-                    Stick = ImportItem("TEST_Stick")
-                    Bomb = ImportItem("TEST_Bomb")
-                    Arrow = ImportItem("TEST_Arrow")
-                    ShopKeeper = shop("ShopKeeper - Zan", "WELCOME TRAVELER!")
-                    ShopKeeper.AddCatalog([Stick, Bomb, Arrow])
-
-                    sword = ImportItem("TEST_Wooden_Sword")
-                    # OldMan = ItemGiver("OldMan", "It's Dangerous to go alone, take this!", sword)
-
-
+                    # Gets the items
+                    items = [GetItem("TEST_Stick", "items"), GetItem("TEST_Bomb", "items"), GetItem("TEST_Arrow", "items")]
+                    # Adds the ShopView class
+                    ShopKeeper = ShopView("ShopKeeper - Zan", "WELCOME TRAVELER!", items, message)
 
                     place = [ShopKeeper]
 
@@ -287,7 +259,13 @@ async def on_message(message):
                         if IfCommand(message, person.CallCommand, False):
                             OutMessage = person.OnContact(message)
                             if OutMessage is not None:
-                                await message.channel.send(OutMessage)
+                                OutView = person.view
+                                view = View()
+
+                                for Item in OutView:
+                                    view.add_item(Item)
+
+                                await message.channel.send(content=OutMessage, view=view)
 
         if str(message.author) in TopPermissionValues and not TestMode:
             # Admin
@@ -324,7 +302,7 @@ async def on_message(message):
             # Casino Functions
 
             def listSum(lst):
-                # Gets the sum of all the data in a list
+                # the sum of all the data in a list
                 n = 0
 
                 for i in lst:
@@ -369,9 +347,9 @@ async def on_message(message):
                             drawCard(UserCards)
                             drawCard(UserCards)
                             if UserCards[0] == 11:
-                                OutMessage = "The First Card is an Ace!"
+                                OutMessage = ">>> The First Card is an Ace!"
                             else:
-                                OutMessage = f"The First Card is a {UserCards[0]}"
+                                OutMessage = f">>> The First Card is a {UserCards[0]}"
                             if UserCards[1] == 11:
                                 OutMessage += " And the Second Card is an Ace!"
                             else:
@@ -391,9 +369,9 @@ async def on_message(message):
                                     time.sleep(1)
                                     drawCard(UserCards)
                                     if UserCards[-1] == 11:
-                                        EndMessage = "You draw an Ace!"
+                                        EndMessage = ">>> You draw an Ace!"
                                     else:
-                                        EndMessage = f"You draw a {UserCards[-1]}"
+                                        EndMessage = f">>> You draw a {UserCards[-1]}"
                                     await message.channel.send(EndMessage)
                                     if listSum(UserCards) > 21:
                                         if 11 not in UserCards:
@@ -457,8 +435,5 @@ async def on_message(message):
                                             await message.channel.send(">>> You Win!")
                                             PointsAdd(message.author.id, "NUTS", WinAmnt)
                                             PointsAdd(message.author.id, "TOTAL-NUTS", WinAmnt)
-
-
-
 
 client.run(TOKEN)

@@ -4,7 +4,7 @@
 
 import re
 
-def ParseForNum(message, listOfCmds):
+def ParseForNum(message, listOfCmds: list):
 	# Takes a Message and returns a number, command and user it is directed at
 	message = message.lower()
 	try:
@@ -22,7 +22,7 @@ def ParseForNum(message, listOfCmds):
 	except:
 		return False
 
-def ParseForCmd(cmd, text):
+def ParseForCmd(cmd: str, text: str):
 	# gets command and returns userid supplied
 	# "!command <!@69420>"
 	# Returns 69420
@@ -35,7 +35,7 @@ def ParseForCmd(cmd, text):
 	except:
 		return False
 
-def ParseForValue(cmd, text):
+def ParseForValue(cmd: str, text: str):
 	# Gets the text after a command !top iq, returns iq
 	try:
 		if text.startswith(str(cmd)):
@@ -45,7 +45,7 @@ def ParseForValue(cmd, text):
 	except:
 		return False
 
-def ParseForShopItem(cmd, text):
+def ParseForShopItem(cmd: str, text: str):
 	try:
 		text = text.lower()
 		cmd = cmd.lower()

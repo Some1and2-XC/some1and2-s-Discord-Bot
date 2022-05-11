@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# Storyboard story for the story of the game
+# Also draft how the menus are going to look like
+
 #botCV.py
 
 # Builtins
@@ -19,17 +22,21 @@ from DataParsing import *
 from AjustingPoints import *
 from QualityOfLife import *
 from NPC import *
-# from buttons import *
+
+intents = discord.Intents.none()
+intents.messages = True
+intents.message_content = True
+intents.reactions = True
 
 load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD = os.getenv("DISCORD_GUILD")
 
 TestMode = False
 
-Channels = {"LogChannel" : [False], "CasinoState" : [False], "BlackJackTable" : [False]}
+Channels = {"LogChannel" : [False]}
 
-client = discord.Client()
+client = discord.Client(intents=intents)
 
 @client.event
 async def on_ready():
@@ -42,6 +49,7 @@ async def on_ready():
         f'{guild.name}(id: {guild.id})'
     )
 
+# Should remove this Probably
 @client.event
 async def on_raw_reaction_add(payload):
     channel = await client.fetch_channel(payload.channel_id)
@@ -53,13 +61,10 @@ async def on_raw_reaction_add(payload):
 
 @client.event
 async def on_message(message):
-    global Channels, EmptyPoints, UserCards, CpuCards
     if message.author != client.user:
-
+        global Channels
         TopPermissionValues = ["Some1and2#2570", "zanekyber#9825", "Spike#6128", "Bardock#4474"]
-        EmptyPoints = {'POG': 0, 'KEK': 0, 'SUS': 0, 'IQ': 0, 'COOKIES': 0, 'COOKIE-DATE': 0, 'NUTS': 0, 'TOTAL-NUTS': 0, 'RPG':{}}
         CommandList = ["POG", "KEK", "SUS", "IQ", "COOKIES", "COOKIE", "NUT", "NUTS", "TOTAL-NUTS"]
-        ReactionEmojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
 
         if IfCommand(message, "pspspsps", TestMode) and str(message.author) in TopPermissionValues:
             with open("points.plk", "rb") as file:
@@ -75,19 +80,6 @@ async def on_message(message):
                     Channels["LogChannel"][0] = True
                     print("Log Channel Set!")
                     return
-
-        if IfCommand(message, "setblackjacktable", TestMode):
-            if str(message.author) in TopPermissionValues:
-                if not Channels["BlackJackTable"][0]:
-                    Channels["BlackJackTable"][0] = True
-                    Channels["BlackJackTable"].append(message)
-                    print("Black Jack Table Set!")
-                    return
-
-        if IfCommand(message, "!kick", TestMode):
-            if str(message.author) in TopPermissionValues:
-                Channels["CasinoState"] = [False]
-                return
 
         if IfCommand(message, "!points", TestMode):
             # Checks Users points +Ranking for each of the points
@@ -125,13 +117,17 @@ async def on_message(message):
         if IfCommand(message, "!rate", TestMode):
             if str(message.author) in TopPermissionValues:
                 rated = ParseForCmd("!rate", message.content)
-                try:
-                    data = await message.channel.send((await client.fetch_user(rated)).avatar_url)
+
+                ReactionEmojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
+
+                if rated is not False:
+                    data = await message.channel.send((await client.fetch_user(rated)).avatar.url)
                     for i in ReactionEmojis:
                         await data.add_reaction(i)
-                except:
-                    # print()
-                    1
+                else:
+                    data = await message.channel.send((await client.fetch_user(message.author.id)).avatar.url)
+                    for i in ReactionEmojis:
+                        await data.add_reaction(i)
 
             return
 
@@ -144,7 +140,7 @@ async def on_message(message):
                 if len(returnMessage) >= 3 and str(message.author) in TopPermissionValues:
                     del returnMessage[0]
                     del returnMessage[0]
-                    returnMessage = " ".join([str(i) for i in returnMessage])
+                    returnMessage = " ".join( str(i) for i in returnMessage )
                     if len(returnMessage) <= 280:
                         PointsSet(user, "PROFILE", returnMessage)
                         await message.channel.send(">>> <@!{UserID1}> Set the Profile of <@!{UserID2}> : `{ProfileData}`".format(UserID1=message.author.id, UserID2=user, ProfileData=ViewPoints(user)["PROFILE"]))
@@ -152,7 +148,7 @@ async def on_message(message):
                         await message.channel.send(f">>> <@!{user}> Profile too Long!")
 
                 elif str(ViewPoints(user)["PROFILE"]) != "0":
-                    await message.channel.send(f">>> <@!{UserID}> : `{ProfileData}`".format(UserID=user, ProfileData=ViewPoints(user)["PROFILE"]))
+                    await message.channel.send(">>> <@!{UserID}> : `{ProfileData}`".format(UserID=user, ProfileData=ViewPoints(user)["PROFILE"]))
                 else:
                     await message.channel.send(f">>> <@!{user}> Doesn't have a Profile Setup Yet!")
 
@@ -182,47 +178,45 @@ async def on_message(message):
                 if Index in CommandList:
                     data = SortByIndex(Index)
 
-                    OutMessage = ">>> "
-                    
-                    for i in range(3):
+                    if len(data) >= 3:
 
-                        if i == 0:
-                            OutMessage += "`1st"
-                        elif i == 1:
-                            OutMessage += "`2nd"
-                        elif i == 2:
-                            OutMessage += "`3rd"
-                        user = str(await client.fetch_user(data[i][0])).split("#")[0]
-                        OutMessage += f" : {user}` "
+                        OutMessage = ">>> "
+                        
+                        for i in range(3):
 
-                        if len(data[i]) >= 3:
-                            OutMessage += f"***AKA*** `{data[i][2]}` "
+                            if i == 0:
+                                OutMessage += "`1st"
+                            elif i == 1:
+                                OutMessage += "`2nd"
+                            elif i == 2:
+                                OutMessage += "`3rd"
+                            user = str(await client.fetch_user(data[i][0])).split("#")[0]
+                            OutMessage += f" : {user}` "
 
-                        OutMessage += f"has {data[i][1]} {Index.upper()}\n"
+                            if len(data[i]) >= 3:
+                                OutMessage += f"***AKA*** `{data[i][2]}` "
 
-                    await message.channel.send(f"{OutMessage}")
+                            OutMessage += f"has {data[i][1]} {Index.upper()}\n"
 
-        if IfCommand(message, "+test", False):
-            sword = GetMelee("TEST_bronze_sword")
-            
-            if GiveMelee(sword, message.author.id):
-                await message.channel.send(">>> ```You got a FREE sword! NICE!```")
+                        await message.channel.send(f"{OutMessage}")
 
-            Zombie = GetEnemy("TEST_Zombie")
+        if IfCommand(message, "+bbbbb", TestMode):
+            bossguy = EnemyView(GetEnemy("TEST_BAD"), await client.fetch_user(message.author.id), message)
 
-            Zombie = EnemyView(GetEnemy("TEST_Zombie"), message)
+            if OutMessage is not None:
+                OutView = bossguy.view
+                view = View()
 
-            OutMessage = Zombie.OnContact(message)
+                for Item in OutView:
+                    view.add_item(Item)
 
-            OutView = Zombie.view
-            view = View()
+                embed = discord.Embed(
+                    title = bossguy.title,
+                    description = bossguy.content,
+                    color = bossguy.color
+                )
 
-            for Item in OutView:
-                view.add_item(Item)
-
-            await message.channel.send(content=OutMessage, view=view)
-
-            return
+                await message.channel.send(embed=embed, view=view)
 
         rpgCMD = "+"
         if IfCommand(message, rpgCMD, TestMode):
@@ -230,45 +224,59 @@ async def on_message(message):
             if len(rpgCMD) < len(message.content):
                 message.content = message.content[len(rpgCMD)::]
 
-                if IfCommand(message, "inv", False):
-                    
-                    InventoryViewClass = InventoryView(message)
-
-                    view=View()
-
-                    for Item in InventoryViewClass.view:
-                        view.add_item(Item)
-
-                    await message.channel.send(content=InventoryViewClass.content, view=view)
+                if IfCommand(message, "test", False):
+                    1
+                    pass
 
                 if IfCommand(message, "help", False):
-                    1
-                    # await message.channel.send(f">>> The New Commands are `{rpgCMD}inventory` and `{rpgCMD}shop`. To buy something from the shop just type `{rpgCMD}shop [item]`. ")
+                    embed = discord.Embed(
+                        title = "**+help**",
+                        description = "`+near` to see things to do ***near*** you\n`+menu` will open your ***inventory***"
+                    )
 
-                area = "castle"
-                if area == "castle":
-                    
-                    # Gets the items
-                    items = [GetItem("TEST_Stick", "items"), GetItem("TEST_Bomb", "items"), GetItem("TEST_Arrow", "items")]
-                    # Adds the ShopView class
-                    ShopKeeper = ShopView("ShopKeeper - Zan", "WELCOME TRAVELER!", items, message)
+                    view = View()
 
-                    place = [ShopKeeper]
+                    view.add_item(GenericCloseButton(message=message))
 
-                    for person in place:
-                        if IfCommand(message, person.CallCommand, False):
-                            OutMessage = person.OnContact(message)
-                            if OutMessage is not None:
-                                OutView = person.view
-                                view = View()
+                    await message.channel.send(embed=embed, view=view)
 
-                                for Item in OutView:
-                                    view.add_item(Item)
+                if IfCommand(message, "menu", False):
 
-                                await message.channel.send(content=OutMessage, view=view)
+                    await menu(await client.fetch_user(message.author.id), message).open()
+
+                    return
+
+                area = MapView(message.author.id)
+
+                # makes the `UserName` variable to the message authors username to only have one API call
+                UserName = await client.fetch_user(message.author.id)
+
+                place = [ ReturnGeneralPerson(person, message, UserName) for person in area ]
+
+                del UserName, area
+
+                if IfCommand(message, "near", TestMode):
+                    embed = discord.Embed(
+                        title = "Some things to do **Near** you!:",
+                        description = " | ".join( f"**+{str(person.CallCommand)}**" for person in place )
+                    )
+
+                    view = View()
+
+                    view.add_item(GenericCloseButton(message=message))
+
+                    await message.channel.send(embed=embed, view=view)
+                    return
+
+                for person in place:
+                    if IfCommand(message, person.CallCommand, False):
+
+                        await person.open()
+
+                        return
 
         if str(message.author) in TopPermissionValues and not TestMode:
-            # Admin
+            # Sudo commands
             # This checks if the person sending the message has permission for commands as well as if the message is a command
             CommandParse = ParseForNum(message.content.lower(), CommandList)
 
@@ -295,145 +303,5 @@ async def on_message(message):
                 await message.channel.send(f">>> {EndMessage}\n\n{rank}")
                 if Channels["LogChannel"][0] is True:
                     await Channels["LogChannel"][1].channel.send(f">>> <@!{message.author.id}> Sent <@!{usr}> {num} {cmd}")
-
-        if not TestMode:
-            # This is to divide casino command from the rest of the commands
-
-            # Casino Functions
-
-            def listSum(lst):
-                # the sum of all the data in a list
-                n = 0
-
-                for i in lst:
-                    n += i
-
-                return n
-
-            def drawCard(lst):
-                lst.append(random.randint(2, 14))
-                if lst[-1] > 11:
-                    lst[-1] = 10
-
-            if message.content.lower().startswith("!casino"):
-                await message.channel.send(">>> The only game that is running at the moment is blackjack, to start type !BlackJack\nBlackJack costs 50 NUTS to Enter and if you Win you get 150 NUTS. ")
-
-            if Channels["BlackJackTable"][0] and Channels["BlackJackTable"][1].channel.id == message.channel.id:
-
-                if message.content.lower().startswith("!blackjack"):
-                    if Channels["CasinoState"][0] is False and ViewPoints(message.author.id)["NUTS"] >= 50:
-                        # Channels["CasinoState"] = <Isrunning> <Gametype> <Message Data> <Game State>
-                        Channels["CasinoState"] = [True, "BlackJack", message, 0]
-                        PointsAdd(message.author.id, "NUTS", -50)
-                        if Channels["CasinoState"][3] == 0:
-                            await message.channel.send(">>> ***BlackJack***")
-                            time.sleep(1)
-                            await message.channel.send(">>> The Dealer Draws Two Cards")
-                            time.sleep(1)
-                            CpuCards = []
-                            drawCard(CpuCards)
-                            if CpuCards[-1] == 11:
-                                await message.channel.send(">>> One of the Cards is an Ace!")
-
-                            else:
-                                await message.channel.send(f">>> One of the Cards the Dealer Draws is a {CpuCards[-1]}")
-
-                            time.sleep(1)
-                            await message.channel.send(">>> ***Your Turn***")
-                            time.sleep(1)
-                            await message.channel.send(">>> You Draw Two Cards")
-                            time.sleep(1)
-                            UserCards = []
-                            drawCard(UserCards)
-                            drawCard(UserCards)
-                            if UserCards[0] == 11:
-                                OutMessage = ">>> The First Card is an Ace!"
-                            else:
-                                OutMessage = f">>> The First Card is a {UserCards[0]}"
-                            if UserCards[1] == 11:
-                                OutMessage += " And the Second Card is an Ace!"
-                            else:
-                                OutMessage += f" And the Second Card is a {UserCards[1]}"
-                            await message.channel.send(OutMessage)
-                            time.sleep(1)
-                            await message.channel.send(f">>> Your Score is {listSum(UserCards)}, Do you want to '!Hit' or '!Stand'")
-                            Channels["CasinoState"][3] = 1
-
-                if Channels["CasinoState"][0]:
-                    if Channels["CasinoState"][1] == "BlackJack":
-                        WinAmnt = 150
-                        if message.channel == Channels["CasinoState"][2].channel and message.author.id == Channels["CasinoState"][2].author.id:
-                            if Channels["CasinoState"][3] == 1:
-                                if message.content.lower().startswith("!hit"):
-                                    await message.channel.send(">>> You Hit!")
-                                    time.sleep(1)
-                                    drawCard(UserCards)
-                                    if UserCards[-1] == 11:
-                                        EndMessage = ">>> You draw an Ace!"
-                                    else:
-                                        EndMessage = f">>> You draw a {UserCards[-1]}"
-                                    await message.channel.send(EndMessage)
-                                    if listSum(UserCards) > 21:
-                                        if 11 not in UserCards:
-                                            time.sleep(1)
-                                            await message.channel.send(">>> You BUST!")
-                                            Channels["CasinoState"] = [False]
-                                        else:
-                                            for i in range(listSum(UserCards)):
-                                                if UserCards[i] == 11:
-                                                    UserCards[i] -= 10
-                                                    break
-                                    if Channels["CasinoState"][0]:
-                                        time.sleep(1)
-                                        if listSum(UserCards) == 21:
-                                            await message.channel.send(">>> Your Score is 21, You WIN!")
-                                            Channels["CasinoState"] = [False]
-                                            PointsAdd(message.author.id, "NUTS", WinAmnt)
-                                            PointsAdd(message.author.id, "TOTAL-NUTS", WinAmnt)
-
-
-                                        else:
-                                            await message.channel.send(f">>> Your Score is {listSum(UserCards)}, Do you want to '!Hit' or '!Stand'")
-
-                                if message.content.lower().startswith("!stand"):
-                                    await message.channel.send(">>> You Stand!")
-                                    time.sleep(1)
-                                    await message.channel.send(">>> *** Dealers Turn ***")
-                                    time.sleep(1)
-                                    Channels["CasinoState"] = [False]
-                                    while listSum(CpuCards) <= 16:
-                                        drawCard(CpuCards)
-                                        if CpuCards[-1] == 11:
-                                            EndMessage = "The Dealer Draws an Ace!"
-                                        else:
-                                            EndMessage = f"The Dealer Draws a {CpuCards[-1]}"
-                                        await message.channel.send(EndMessage)
-                                        time.sleep(1)
-                                        await message.channel.send(f">>> The Dealers Score is {listSum(CpuCards)}")
-                                        while listSum(CpuCards) > 21 and 11 in CpuCards:
-                                            for i in range(listSum(CpuCards)):
-                                                if CpuCards[i] == 11:
-                                                    CpuCards[i] -= 10
-                                                    break
-                                        time.sleep(1)
-
-                                    time.sleep(1)
-                                    if listSum(CpuCards) > 21:
-                                        await message.channel.send(">>> The Dealer Busts! \n You Win!")
-                                        PointsAdd(message.author.id, "NUTS", WinAmnt)
-                                        PointsAdd(message.author.id, "TOTAL-NUTS", WinAmnt)
-
-                                    else:
-                                        await message.channel.send(">>> The Dealer Stands!")
-                                        time.sleep(1)
-                                        if listSum(CpuCards) > listSum(UserCards):
-                                            await message.channel.send(">>> You Lose!")
-                                        elif listSum(CpuCards) == listSum(UserCards):
-                                            await message.channel.send(">>> You Tied!")
-                                            PointsAdd(message.author.id, "NUTS", 50)
-                                        elif listSum(CpuCards) < listSum(UserCards):
-                                            await message.channel.send(">>> You Win!")
-                                            PointsAdd(message.author.id, "NUTS", WinAmnt)
-                                            PointsAdd(message.author.id, "TOTAL-NUTS", WinAmnt)
 
 client.run(TOKEN)

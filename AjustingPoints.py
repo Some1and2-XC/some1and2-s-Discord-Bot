@@ -6,532 +6,632 @@ import json
 from datetime import datetime
 from operator import itemgetter
 
+from QualityOfLife import *
+
+from lindex import lindex
+
 EmptyPoints = {'POG': 0, 'KEK': 0, 'SUS': 0, 'IQ': 0, 'COOKIES': 0, 'COOKIE-DATE': 0, 'NUTS': 0, 'TOTAL-NUTS': 0}
-EmptyStats = {"HP": 0, "STRENGTH": 0, "INTELLIGENCE": 0}
+EmptyStats = {"OVERALL": 0, "HP": 0, "STRENGTH": 0, "INTELLIGENCE": 0}
+EmptyMap = ["lucia", "palmer", "Neville"]
 
-# Writing to Files
+# Directly Changing Files Functions
+if True:
 
-def GetPoints():
+	# Quality of File Check
+	def QUERY() -> bool:
+
+		FILEISBROKENSTRING = "{}"
+
+		# Makes sure that points.plk file exists and works properly
+		try:
+			with open("points.plk", "r") as file:
+				json.loads(file.read())
+				file.close()
+
+		except:
+			with open("points.plk", "w") as file:
+				file.write(FILEISBROKENSTRING)
+				file.close()
+
+		# Makes sure that items.plk file exists and works properly
+		try:
+			with open("items.plk", "r") as file:
+				json.loads(file.read())
+				file.close()
+
+		except:
+			with open("items.plk", "w") as file:
+				file.write(FILEISBROKENSTRING)
+				file.close()
+
+		# Makes sure that map.plk file exists and works properly
+		try:
+			with open("map.plk", "r") as file:
+				json.loads(file.read())
+				file.close()
+
+		except:
+			with open("map.plk", "w") as file:
+				file.write(FILEISBROKENSTRING)
+				file.close()
+
+		return True
+
 	# Returns Points File
-	
-	QUERY()
+	def GetPoints() -> dict:
+		
+		QUERY()
 
-	with open("points.plk", "r") as data:
-		file = json.loads(data.read())
-		data.close()
+		with open("points.plk", "r") as data:
+			file = json.loads(data.read())
+			data.close()
 
-	return file
+		return file
 
-def WritePoints(file):
 	# Writes file to points.plk
+	def WritePoints(file: dict) -> bool:
 
-	QUERY()
+		QUERY()
 
-	with open("points.plk", "w") as data:
-		data.write(json.dumps(file))
-		data.close()
+		with open("points.plk", "w") as data:
+			data.write(json.dumps(file))
+			data.close()
 
-	return True
+		return True
 
-def GetItems():
-	# Returns Points File
-	
-	QUERY()
+	# Returns items.plk File
+	def GetItems() -> dict:
+		
+		QUERY()
 
-	with open("items.plk", "r") as data:
-		file = json.loads(data.read())
-		data.close()
+		with open("items.plk", "r") as data:
+			file = json.loads(data.read())
+			data.close()
 
-	return file
+		return file
 
-def WriteItems(file):
 	# Writes file to points.plk
+	def WriteItems(file: dict) -> bool:
 
-	QUERY()
+		QUERY()
 
-	with open("items.plk", "w") as data:
-		data.write(json.dumps(file))
-		data.close()
+		with open("items.plk", "w") as data:
+			data.write(json.dumps(file))
+			data.close()
 
-	return True
+		return True
 
-# Quality of File Check
+	# Returns map.plk File
+	def GetMap():
+		
+		QUERY()
 
-def QUERY():
+		with open("map.plk", "r") as data:
+			file = json.loads(data.read())
+			data.close()
 
-	# Makes sure that points.plk file exists and works properly
-	try:
-		with open("points.plk", "r") as file:
-			json.loads(file.read())
-			file.close()
-
-	except:
-		with open("points.plk", "w") as file:
-			file.write("{}")
-			file.close()
-
-	# Makes sure that items.plk file exists and works properly
-	try:
-		with open("items.plk", "r") as file:
-			json.loads(file.read())
-			file.close()
-		return
-
-	except:
-		with open("items.plk", "w") as file:
-			file.write("{}")
-			file.close()
-		return
+		return file
 
 # Points Functions
+if True:
 
-def GetCookie(UserID):
-	# Function to give a cookie to UserID
-	global EmptyPoints
+	# Function to give a cookie to `UserID`
+	def GetCookie(UserID: int) -> bool:
+		global EmptyPoints
 
-	data = GetPoints()
+		data = lindex(GetPoints())
 
-	UserID = str(UserID)
+		UserID = str(UserID)
 
-	if str(UserID) in data:
-		if data[str(UserID)]["COOKIE-DATE"] == str(datetime.date(datetime.now())):
-			return False 
-
-	else:
-		print("GetCookie")
-		data[str(UserID)] = EmptyPoints
-
-	data[str(UserID)]["COOKIES"] += 1
-	data[str(UserID)]["COOKIE-DATE"] = str(datetime.date(datetime.now()))
-	data[str(UserID)]["NUTS"] += 300
-	data[str(UserID)]["TOTAL-NUTS"] += 300
-
-
-	WritePoints(data)
-
-	return True
-
-def PointsSet(UserID, key, change):
-	# This is for directly overiding points to be set at something specific
-	global EmptyPoints
-
-	data = GetPoints()
-
-	UserID = str(UserID)
-
-	if UserID not in data:
-		data[UserID] = EmptyPoints
-
-	data[UserID][key] = change
-
-	WritePoints(data)
-
-	return True
-
-def PointsAdd(UserID, key, Ammount):
-	# Changes points of UserID by Amount in key
-	global EmptyPoints
-
-	data = GetPoints()
-
-	UserID = str(UserID)
-
-	if UserID not in data:
-		data[UserID] = EmptyPoints
-
-	if key in data[UserID]:
-		data[UserID][key] += int(Ammount)
-
-	else:
-		data[UserID][key] = int(Ammount)
-
-	WritePoints(data)
-
-	return
-
-def ViewPoints(UserID):
-	# Querying Points of UserID
-	global EmptyPoints
-
-	data = GetPoints()
-
-	UserID = str(UserID)
-
-	if UserID not in data:
-		return EmptyPoints
-
-	else:
-		return data[UserID]
-
-def RankPoints(UserID, key):
-	# Ranks UserID's points against everyone elses points to get rank
-	global EmptyPoints
-
-	data = GetPoints()
-
-	UserID = str(UserID)
-		
-	rank = 1
-
-	if UserID not in data:
-		UserPoints = EmptyPoints[key]
-
-	else:
-		userPoints = data[UserID][key]
-
-	for i in data:
-		if data[i][key] > userPoints:
-			rank += 1
-
-	return rank
-
-def SortByIndex(Index):
-
-	data1 = GetPoints()
-
-	data2 = []
-
-	for UserID in data1:
-
-		if "PROFILE" in data1[UserID]:
-			data2.append([UserID, data1[UserID][Index], data1[UserID]["PROFILE"]])
-
-		elif Index not in data1[UserID]:
-			return False
-		
-		else:
-			data2.append([UserID, data1[UserID][Index]])
-
-	return sorted(data2, key = itemgetter(1))[::-1]
-
-# Items With Points Functions
-
-def BuyItem(UserID, ItemData):
-	# This is for if someone buys an item from an item shop using RPG things
-	global EmptyPoints
-
-	data = GetPoints()
-
-	UserID = str(UserID)
-
-	if UserID not in data:
-		data[UserID] = EmptyPoints
-
-	if "RPG" not in data[UserID]:
-		data[UserID]["RPG"] = {}
-
-	if ItemData.ItemType not in data[UserID]["RPG"]:
-		data[UserID]["RPG"][ItemData.ItemType] = {}
-
-	UserData = data[UserID]
-
-	if UserData["NUTS"] >= ItemData.price:
-
-		data[UserID]["NUTS"] -= ItemData.price
-
-		if ItemData.ItemKey in data[UserID]["RPG"][ItemData.ItemType]:
-			data[UserID]["RPG"][ItemData.ItemType][ItemData.ItemKey] += 1
+		if UserID in data and "POG" in data[UserID]:
+			if data.RTN(UserID, "COOKIE-DATE") == str(datetime.date(datetime.now())):
+				return False 
 
 		else:
-			data[UserID]["RPG"][ItemData.ItemType][ItemData.ItemKey] = 1
+			for key in EmptyPoints:
+				data[UserID][key] = EmptyPoints[key]
+
+		data.add(UserID, "COOKIES", 1)
+		data.set(UserID, "COOKIE-DATE", str(datetime.date(datetime.now())))
+		data.add(UserID, "NUTS", 300)
+		data.add(UserID, "TOTAL-NUTS", 300)
+
 
 		WritePoints(data)
 
 		return True
 
-	return False
+	# To Set UserID's points to something specific
+	def PointsSet(UserID: int, key: str, change: int) -> bool:
+		global EmptyPoints
 
-def ViewItems(UserID):
-	# Returns all the items 'UserID' has
+		data = GetPoints()
 
-	data = GetPoints()
+		UserID = str(UserID)
 
-	UserID = str(UserID)
+		if UserID not in data and "POG" not in data[UserID]:
+			for key in EmptyPoints:
+				data[UserID][key] = EmptyPoints[key]
 
-	if UserID in data and "RPG" in data[UserID] and "items" in data[UserID]["RPG"]:
-		data = data[UserID]["RPG"]["items"]
-		# Returns a list of ["Item Data", "Amount"]
-		return [(GetItem(item, "items"), data[item]) for item in data]
+		data[UserID][key] = change
 
-	else:
-		return []
+		WritePoints(data)
 
-# Items With Item File
+		return True
 
-def ReturnGeneralItem(item):
+	# Changes points of UserID by amnt in key
+	def PointsAdd(UserID: int, key: str, amnt: int) -> bool:
+		global EmptyPoints
 
-	ItemType = type(item)
+		data = GetPoints()
 
-	if ItemType == item:
-		return GetItem(item)
+		UserID = str(UserID)
 
-	if ItemType == melee:
-		return GetMelee(item)
+		if UserID not in data and "POG" not in data[UserID]:
+			for key in EmptyPoints:
+				data[UserID][key] = EmptyPoints[key]
 
-	if ItemType == enemy:
-		return GetEnemy(item)
+		if key in data[UserID]:
+			data[UserID][key] += int(amnt)
 
-	else:
+		else:
+			data[UserID][key] = int(amnt)
+
+		WritePoints(data)
+
+		return True
+
+	# Returns dictionary of the points of `UserID`
+	def ViewPoints(UserID: int) -> dict:
+		global EmptyPoints
+
+		data = GetPoints()
+
+		UserID = str(UserID)
+
+		if UserID not in data and "POG" not in data[UserID]:
+			return EmptyPoints
+
+		else:
+			return data[UserID]
+
+	# Ranks UserID's [key] points
+	def RankPoints(UserID: int, key: str) -> int:
+		global EmptyPoints
+
+		data = GetPoints()
+
+		UserID = str(UserID)
+			
+		rank = 1
+
+		if UserID not in data and "POG" not in data[UserID]:
+			for key in EmptyPoints:
+				data[UserID][key] = EmptyPoints[key]
+
+		else:
+			UserPoints = data[UserID][key]
+
+		for i in data:
+			if data[i][key] > UserPoints:
+				rank += 1
+
+		return rank
+
+	# Returns the Points File sorted by highest User [key] to lowest user [key]
+	def SortByIndex(key: str, data1: dict = GetPoints()) -> list:
+
+		data2 = []
+
+		for UserID in data1:
+
+			if "PROFILE" in data1[UserID]:
+				data2.append([UserID, data1[UserID][key], data1[UserID]["PROFILE"]])
+
+			elif key not in data1[UserID]:
+				return False
+			
+			else:
+				data2.append([UserID, data1[UserID][key]])
+
+		return sorted(data2, key = itemgetter(1))[::-1]
+
+# Functions for changing Map information
+if True:
+
+	# This function is for setting the map data of `UserID`
+	def MapSet(UserID: int, MapIndexes: list) -> bool:
+		global EmptyPoints
+
+		if lindex(GetMap()).RTN(MapIndexes) is False:
+			return False
+
+		data = lindex(GetPoints()).set(UserID, "RPG", "location", MapIndexes)
+
+		WritePoints(data)
+
+		return True
+
+	# Returns the Map Index of `UserID`
+	def MapView(UserID: int) -> dict:
+
+		global EmptyMap
+
+		Indexes = lindex(GetPoints()).RTN(UserID, "RPG", "location")
+
+		if Indexes is False:
+			Indexes = EmptyMap
+
+		return lindex(GetMap()).RTN(*Indexes)
+
+# General Item Functions
+if True:
+	# Adds `item` to `UserID`'s inventory
+	def AddGeneralItem(UserID: int, item):
+		data = GetItems()
+
+		ItemType = type(item)
+
+		if ItemType == item:
+			return GiveItem(UserID, item)
+
+		if ItemType == melee:
+			return GiveMelee(UserID, item)
+
 		return False
 
+	# Takes item index and returns the item that corellates to it | Returns different classes depending on the item
+	def ReturnGeneralItem(item: str):
 
+		data = GetItems()
 
+		ItemsFound = []
 
-class item:
+		for category in data:
+			if item in data[category]:
 
-	def __init__(self, name, price, ItemKey, description, ItemType="items"):
-		self.name = name
-		self.price = price
-		self.ItemKey = ItemKey
-		self.description = description
-		self.ItemType = ItemType
+				if category == "items":
+					return GetItem(item)
 
-def AddItem(ItemData):
+				if category == "melee":
+					return GetMelee(item)
 
-	data = GetItems()
+				if category == "enemy":
+					return GetEnemy(item)
 
-	if ItemData.ItemType not in data:
-		data[ItemData.ItemType] = {}
-
-	if ItemData.ItemKey in data[ItemData.ItemType]:
 		return False
 
-	data[ItemData.ItemType][ItemData.ItemKey] = {
-		"name" : ItemData.name,
-		"price" : ItemData.price,
-		"description" : ItemData.description
-	}
+# Functions for ajusting items that belong to players
+if True:
+	class item:
 
-	WriteItems(data)
+		def __init__(self, name: str, price: int, ItemKey: str, description: str, ItemType: str="items"):
+			self.name = name
+			self.price = price
+			self.ItemKey = ItemKey
+			self.description = description
+			self.ItemType = ItemType
 
-	return True
+	# Adds item to the `items.plk` file
+	def AddItem(ItemData: item) -> bool:
 
-def GetItem(ItemKey, ItemType="items"):
-	
-	data = GetItems()
+		data = GetItems()
 
-	if ItemKey in data[ItemType]:
-		return item(data[ItemType][ItemKey]["name"], data[ItemType][ItemKey]["price"], ItemKey, data[ItemType][ItemKey]["description"], ItemType)
+		if ItemData.ItemType not in data:
+			data[ItemData.ItemType] = {}
 
-	else:
+		if ItemData.ItemKey in data[ItemData.ItemType]:
+			return False
+
+		data[ItemData.ItemType][ItemData.ItemKey] = {
+			"name" : ItemData.name,
+			"price" : ItemData.price,
+			"description" : ItemData.description
+		}
+
+		WriteItems(data)
+
+		return True
+
+	# Returns class version of Items based on ItemKey & ItemType
+	def GetItem(ItemKey: str, ItemType: str="items"):
+		
+		data = GetItems()
+
+		if ItemKey in data[ItemType]:
+			return item(data[ItemType][ItemKey]["name"], data[ItemType][ItemKey]["price"], ItemKey, data[ItemType][ItemKey]["description"], ItemType)
+
 		return False
 
-def PrintItems():
+	# This is for if someone buys an item from an item shop
+	def BuyItem(UserID: int, ItemData: item):
+		global EmptyPoints
 
-	data = GetItems()
-	
-	return print( "\n".join(f"{i}:" + "".join( "\n" + str(data[i][j]) for j in data[i] ) + "\n" for i in data) )
+		data = lindex(GetPoints())
+
+		UserID = str(UserID)
+
+		UsersCash = data.RTN(UserID, "RPG", "cash")
+
+		if UsersCash >= ItemData.price:
+			data.add(UserID, "RPG", "cash", num = -ItemData.price)
+			data.add(UserID, "RPG", ItemData.ItemType, ItemData.ItemKey, num = 1)
+
+			WritePoints(data)
+
+			return True
+
+		return False
+
+	# Returns a list of all the items 'UserID' has
+	def ViewItems(UserID: int) -> list:
+
+		UserID = str(UserID)
+
+		data = lindex(GetPoints()).RTN(UserID, "RPG", "items")
+
+		if data is False:
+			return []
+
+		items = []
+		
+		for item in data:
+			if ReturnGeneralItem(item) is not False:
+				items.append([ReturnGeneralItem(item), data[item]])
+
+		return items
+
+	# Gives a `UserID` a `ItemData`
+	def GiveItem(UserID: int, ItemData: item) -> bool:
+		global EmptyPoints
+		
+		data = lindex(GetPoints())
+		
+		UserID = str(UserID)
+
+		indexes = [UserID, "RPG", ItemData.ItemType, ItemData.ItemKey]
+
+		data.add(*indexes, num = 1)
+		
+		return True
 
 # Melee Items with Item File
+if True:
+	class melee(item):
 
-class melee(item):
+		def __init__(self, name, price, ItemKey, description, damage, CritPercent, ItemType="melee"):
+			super().__init__(name, price, ItemKey, description, ItemType)
+			self.damage = damage
+			self.CritPercent = CritPercent
 
-	def __init__(self, name, price, ItemKey, description, damage, CritPercent, ItemType="melee"):
-		super().__init__(name, price, ItemKey, description, ItemType)
-		self.damage = damage
-		self.CritPercent = CritPercent
+	# Adds `MeleeData` to items.plk file
+	def AddMelee(MeleeData: melee) -> bool:
 
-def AddMelee(MeleeData):
+		data = GetItems()
 
-	data = GetItems()
+		if MeleeData.ItemType not in data:
+			data[MeleeData.ItemType] = {}
 
-	if MeleeData.ItemType not in data:
-		data[MeleeData.ItemType] = {}
+		if MeleeData.ItemKey in data[MeleeData.ItemType]:
+			return False
 
-	if MeleeData.ItemKey in data[MeleeData.ItemType]:
-		return False
+		data[MeleeData.ItemType][MeleeData.ItemKey] = {
+			"name" : MeleeData.name,
+			"price" : MeleeData.price,
+			"description" : MeleeData.description,
+			"damage" : MeleeData.damage,
+			"CritPercent" : MeleeData.CritPercent
+		}
 
-	data[MeleeData.ItemType][MeleeData.ItemKey] = {
-		"name" : MeleeData.name,
-		"price" : MeleeData.price,
-		"description" : MeleeData.description,
-		"damage" : MeleeData.damage,
-		"CritPercent" : MeleeData.CritPercent
-	}
+		WriteItems(data)
 
-	WriteItems(data)
+		return True
 
-	return True
+	# Returns `melee` class based on `MeleeKey`
+	def GetMelee(MeleeKey: str, ItemType="melee"):
+		
+		data = GetItems()
 
-def GetMelee(MeleeKey, ItemType="melee"):
-	
-	data = GetItems()
+		if MeleeKey in data[ItemType]:
+			return melee(
+				data[ItemType][MeleeKey]["name"],
+				data[ItemType][MeleeKey]["price"], 
+				MeleeKey,
+				data[ItemType][MeleeKey]["description"],
+				data[ItemType][MeleeKey]["damage"],
+				data[ItemType][MeleeKey]["CritPercent"],
+				ItemType
+			)
 
-	if MeleeKey in data[ItemType]:
-		return melee(
-			data[ItemType][MeleeKey]["name"],
-			data[ItemType][MeleeKey]["price"], 
-			MeleeKey,
-			data[ItemType][MeleeKey]["description"],
-			data[ItemType][MeleeKey]["damage"],
-			data[ItemType][MeleeKey]["CritPercent"],
-			ItemType
-		)
+		else:
+			return False
 
-	else:
-		return False
+	# Returns list of all the melees 'UserID' has
+	def ViewMelee(UserID: int) -> list:
+		UserID = str(UserID)
 
-def ViewMelee(UserID):
-	# Returns all the items 'UserID' has
+		PlayerData = lindex(GetPoints()).RTN(UserID, "RPG", "melee")
 
-	data = GetPoints()
+		if PlayerData is not False:
+			# Returns a list of ["Item Data", "Amount"]
+			return [(GetMelee(item), PlayerData[item]) for item in PlayerData]
 
-	UserID = str(UserID)
+		else:
+			return [(GetMelee("TEST_hand"), 2)]
 
-	if UserID in data and "RPG" in data[UserID] and "melee" in data[UserID]["RPG"]:
-		data = data[UserID]["RPG"]["melee"]
-		# Returns a list of ["Item Data", "Amount"]
-		return [(GetMelee(item), data[item]) for item in data]
-
-	else:
-		return []
-
-def GiveMelee(MeleeData, UserID):
 	# Gives a player a melee weapon
-	global EmptyPoints
+	def GiveMelee(UserID: int, MeleeData: melee) -> bool:
+		global EmptyPoints
 
-	data = GetPoints()
+		data = lindex(GetPoints())
+		UserID = str(UserID)
+		item = GetMelee(MeleeData.ItemKey)
+		indexes = [UserID, "RPG", MeleeData.ItemType, MeleeData.ItemKey]
 
-	UserID = str(UserID)
+		data.add(indexes, num = 1)
 
-	item = GetMelee(MeleeData.ItemKey)
+		WritePoints(data)
 
-	if UserID not in data:
-		data[UserID] = EmptyPoints
+		return True
 
-	if "RPG" not in data[UserID]:
-		data[UserID]["RPG"] = {}
+# Enemy Data with Item File
+if True:
+	class enemy:
 
-	if MeleeData.ItemType not in data[UserID]["RPG"]:
-		data[UserID]["RPG"][MeleeData.ItemType] = {}
+		def __init__(self, name, level, health, xp, cash, EnemyKey, description, WeaponKey, WeaponType="melee", WeaponDrop=False, ItemType="enemy"):
+			self.name = name
+			self.level = level
+			self.health = health
+			self.xp = xp
+			self.cash = cash
+			self.EnemyKey = EnemyKey
+			self.description = description
+			self.WeaponKey = WeaponKey
+			self.WeaponType = WeaponType
+			self.WeaponDrop = WeaponDrop
+			self.ItemType = ItemType
 
-	if MeleeData.ItemKey not in data[UserID]["RPG"][MeleeData.ItemType]:
-		data[UserID]["RPG"][MeleeData.ItemType][MeleeData.ItemKey] = 1
+	def AddEnemy(EnemyData: enemy) -> bool:
 
-	else:
-		return False
+		data = GetItems()
 
-	WritePoints(data)
+		if EnemyData.ItemType not in data:
+			data[EnemyData.ItemType] = {}
 
-	return True
+		if EnemyData.EnemyKey in data[EnemyData.ItemType]:
+			return False
 
-# Enemy Data wuth Item File
+		data[EnemyData.ItemType][EnemyData.EnemyKey] = {
+			"name" : EnemyData.name,
+			"level" : EnemyData.level,
+			"health" : EnemyData.health,
+			"xp" : EnemyData.xp,
+			"cash" : EnemyData.cash,
+			"description" : EnemyData.description,
+			"WeaponKey" : EnemyData.WeaponKey,
+			"WeaponType" : EnemyData.WeaponType,
+			"WeaponDrop" : EnemyData.WeaponDrop,
+			"ItemType" : EnemyData.ItemType
+		}
 
-class enemy:
+		WriteItems(data)
 
-	def __init__(self, name, health, xp, EnemyKey, description, WeaponKey, WeaponType="melee", WeaponDrop=False, ItemType="enemy"):
-		self.name = name
-		self.health = health
-		self.xp = xp
-		self.EnemyKey = EnemyKey
-		self.description = description
-		self.WeaponKey = WeaponKey
-		self.WeaponType = WeaponType
-		self.WeaponDrop = WeaponDrop
-		self.ItemType = ItemType
+		return True
 
-def AddEnemy(EnemyData):
+	# Returns `enemy` Class based on ItemKey
+	def GetEnemy(ItemKey, ItemType="enemy"):
 
-	data = GetItems()
+		data = GetItems()
 
-	if EnemyData.ItemType not in data:
-		data[EnemyData.ItemType] = {}
+		if ItemKey in data[ItemType]:
+			return enemy(
+				data[ItemType][ItemKey]["name"],
+				data[ItemType][ItemKey]["level"],
+				data[ItemType][ItemKey]["health"],
+				data[ItemType][ItemKey]["xp"],
+				data[ItemType][ItemKey]["cash"],
+				ItemKey,
+				data[ItemType][ItemKey]["description"],
+				data[ItemType][ItemKey]["WeaponKey"],
+				data[ItemType][ItemKey]["WeaponType"],
+				data[ItemType][ItemKey]["WeaponDrop"]
+			)
 
-	if EnemyData.EnemyKey in data[EnemyData.ItemType]:
-		return False
-
-	data[EnemyData.ItemType][EnemyData.EnemyKey] = {
-		"name" : EnemyData.name,
-		"health" : EnemyData.health,
-		"xp" : EnemyData.xp,
-		"description" : EnemyData.description,
-		"WeaponKey" : EnemyData.WeaponKey,
-		"WeaponType" : EnemyData.WeaponType,
-		"WeaponDrop" : EnemyData.WeaponDrop,
-		"ItemType" : EnemyData.ItemType
-	}
-
-	WriteItems(data)
-
-	return True
-
-def GetEnemy(ItemKey, ItemType="enemy"):
-
-	data = GetItems()
-
-	if ItemKey in data[ItemType]:
-		return enemy(
-			data[ItemType][ItemKey]["name"],
-			data[ItemType][ItemKey]["health"],
-			data[ItemType][ItemKey]["xp"],
-			ItemKey,
-			data[ItemType][ItemKey]["description"],
-			data[ItemType][ItemKey]["WeaponKey"],
-			data[ItemType][ItemKey]["WeaponType"],
-			data[ItemType][ItemKey]["WeaponDrop"]
-		)
-
-	else:
-		return False
+		else:
+			return False
 
 # Combat xp Functions
+if True:
+	class experience:
+		def __init__(self, name):
+			self.name = name
 
-def GetCombatPoints(UserID, key, change):
-	# Making Sure UserID is a string instead of the default integer
-	global EmptyPoints
-	global EmptyStats
+	# Gives `UserID` `change` `key` xp
+	def GiveCombatPoints(UserID: int, key: str, change: int) -> bool:
+		global EmptyPoints
+		global EmptyStats
 
-	data = GetPoints()
+		if key not in EmptyStats:
+			return False
 
-	UserID = str(UserID)
+		data = lindex(GetPoints())
+		UserID = str(UserID)
+		indexes = [UserID, "RPG", "CombatStats"]
 
-	if UserID not in data:
-		data[UserID] = EmptyPoints
-	
-	if "RPG" not in data[UserID]:
-		data[UserID]["RPG"] = {}
+		UserCombatStats = data.RTN(*indexes)
 
-	if "CombatStats" not in data[UserID]["RPG"]:
-		data[UserID]["RPG"]["CombatStats"] = EmptyStats
+		if UserCombatStats is False:
+			UserCombatStats = EmptyStats
+			data.set(*indexes, num = EmptyStats)
 
-	if key not in data[UserID]["RPG"]["CombatStats"]:
-		data[UserID]["RPG"]["CombatStats"][key] = change
+		indexes.append(key)
 
-	else:
-		data[UserID]["RPG"]["CombatStats"] += change
+		data.add(*indexes, change)
 
-	WritePoints(data)
+		WritePoints(data)
 
-	return
+		return True
 
-def ViewCombatPoints(UserID):
 	# returns a list of (StatKeys, AmountAtStatKeys)
-	global EmptyStats
+	def ViewCombatPoints(UserID: int) -> list:
+		global EmptyStats
 
-	data = GetPoints()
+		data = GetPoints()
 
-	UserID = str(UserID)
+		UserID = str(UserID)
 
-	if UserID in data and "RPG" in data[UserID] and "CombatStats" in data[UserID]["RPG"]:
-		data = data[UserID]["RPG"]["CombatStats"]
+		# Going over stats and making "OVERALL" first in most menus
 
-	else:
-		data = EmptyStats
-	
-	return [(item, data[item]) for item in data]
+		StatKeys = [ xp for xp in EmptyStats ]
+		StatKeys = [StatKeys[-1], *StatKeys[:-1:]]
 
-# Helpful Functions
+		if UserID in data and "RPG" in data[UserID] and "CombatStats" in data[UserID]["RPG"]:
+			return [ [experience(entry), data[UserID]["RPG"]["CombatStats"][entry]] for entry in StatKeys ]
 
-def GetHP(level):
-	1
-	return 50 + level * 5
+		else:
+			return [ [experience(entry), EmptyStats[entry]] for entry in StatKeys ]
 
-def GetCombatPointLevel(xp):
-	1
-	return int(0.1 * (int(xp) + 90) ** .5)
+	# returns a dictionary of `UserID`'s Combat Points
+	def ViewCombatPointDict(UserID: int) -> dict:
+		global EmptyStats
 
-def GetCombatXp(level):
-	1
-	return (level) ** 2 - 90
+		CBP = lindex(GetPoints()).RTN(str(UserID), "RPG", "CombatStats")
 
-# PrintItems()
+		if CBP is False:
+			return EmptyStats
+
+		return CBP
+
+	# returns HP based on HP level
+	def GetHP(level: int) -> int:
+		1
+		return 50 + level * 5
+
+	# Returns CombatPointLevel based on xp
+	def GetCombatPointLevel(xp: int) -> int:
+		1
+		return int(0.1 * (int(xp) + 90) ** .5)
+
+	# Returns how much Cash `UserID` has
+	def ViewCash(UserID: int) -> int:
+		1
+		return int(lindex(GetPoints()).RTN(str(UserID), "RPG", "cash"))
+
+	# Gives a `UserID` `amnt` of cash
+	def GiveCash(UserID: int, amnt: int) -> bool:
+
+		global EmptyPoints
+
+		UserID = str(UserID)
+		data = lindex(GetPoints())
+		indexes = [UserID, "RPG", "cash"]
+
+		# uses int because if IndexCarve returns `False` it will be turned into `0`
+		data.add(*indexes, amnt)
+
+		WritePoints(data)
+
+		return True
+
+# lindex(GetPoints()).pprint()
+# lindex(GetMap()).pprint()

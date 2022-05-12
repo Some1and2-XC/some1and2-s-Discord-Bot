@@ -39,5 +39,9 @@ A discord bot developed by @some1and2 the aims to function as an `RPG` within th
  - The main class that is made for each type of `NPC` calls the `Get Text` function attached to the `NPC` type to attach text to the view sent by botCV.py
  - The secondary class attached to each `NPC` is the class for the `NPC`'s buttons
  - The `NPC`'s buttons work by responding to actions taken by reconstructing a new message and calls back to the main `NPC` class to resend a new message \[With data from the Old `NPC` class\]
+
+# Current Work::
+### See `TODO.md` to see what is being worked
+
 ---
 *Reach out to @some1and2 for clairification if needed*

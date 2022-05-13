@@ -8,3 +8,5 @@
  - Add magic to combat system, gaining magic per hit of the enemy & having magic reserve idea etc
  - Add ability to transact between players, make trading & exchange possible
  - Add player run shops
+
+---

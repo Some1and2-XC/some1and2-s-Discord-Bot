@@ -7,8 +7,8 @@ A discord bot developed by @some1and2 the aims to function as an `RPG` within th
     - The map works by holding nestled dictionaries that functonally work as directories that lead to the backend names of NPC's
 
  - Various NPC's
-    - The bot uses the backend names of NPC's to index them from the `items.plk` file to create `NPC` data objects
-    - These data objects are based on classes which come in a few forms:
+    - The bot uses the backend names of NPC's to index them from the `items.plk` file to create `NPC` objects
+    - These `NPC` objects are based on classes which come in a few forms:
        - Shop
        - Text
        - Enemy
@@ -32,16 +32,21 @@ A discord bot developed by @some1and2 the aims to function as an `RPG` within th
 
 
 # Basic Structure of Files::
- - The configuration of the `discord.py` elements as well as settings up how the bot will reaction to messages. 
- - Most commands use `IfCommand()` function, the basic use of it is to see if a message starts with a certain string, returning True if it does. 
- - The majority of the work is done by the back end instead of by the botCV.py file
+### `botCV.py`
+ - The configuration of the `discord.py` elements as well as settings up how the bot will reaction to messages is mostly set in the `botCV.py` file. 
+ - Most commands use `IfCommand()` function, the basic use is to see if a message starts with a certain string, returning True if it does. 
+ - The majority of the work to corrdinate responces is done by the back end instead of by the botCV.py file
+
+### `NPC.py`
  - Each type of `NPC` in the `NPC.py` file works by having two classes and a function attached to them
- - The main class that is made for each type of `NPC` calls the `Get Text` function attached to the `NPC` type to attach text to the view sent by botCV.py
- - The secondary class attached to each `NPC` is the class for the `NPC`'s buttons
- - The `NPC`'s buttons work by responding to actions taken by reconstructing a new message and calls back to the main `NPC` class to resend a new message \[With data from the Old `NPC` class\]
+ - The main class that is made for each type of `NPC` has most of the class information
+ - The main class calls the `Get Text` function associated with the `NPC` type to attach text as an attribute of the main class
+ - The secondary class for each `NPC` is the class for the `NPC`'s buttons
+ - The `NPC`'s button class works by responding to actions taken by a user
+ - The button reconstructs a new main `NPC` class to resend a new message \[With changed data from the Old `NPC` class\]
 
 # Current Work::
-### See `TODO.md` to see what is being worked
+### See `TODO.md` to see what is being worked on
 
 ---
 *Reach out to @some1and2 for clairification if needed*

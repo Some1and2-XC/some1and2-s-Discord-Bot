@@ -401,7 +401,7 @@ class TextNPCScrollButton(Button):
 				try:
 					await self.message.delete()
 				except:
-						print("Unable to Delete Message!\nMessage no longer Exists")
+					print("Unable to Delete Message!\nMessage no longer Exists")
 				return
 				
 
@@ -577,10 +577,10 @@ class EnemyView:
 		self.color = 0xff0000
 
 		self.view = [
-			EnemyButton(label="▲", enemy=enemy, PlayerHealth=PlayerHealth, color=self.color, action="UP", UserName=UserName, message=message, index=index, style=1),
-			EnemyButton(label="✦", enemy=enemy, PlayerHealth=PlayerHealth, color=self.color, action="DAMAGE", UserName=UserName, message=message, index=index, style=3),
-			EnemyButton(label="▼", enemy=enemy, PlayerHealth=PlayerHealth, color=self.color, action="DOWN", UserName=UserName, message=message, index=index, style=1),
-			EnemyButton(label="RUN", enemy=enemy, PlayerHealth=PlayerHealth, color=self.color, action="RUN", UserName=UserName, message=message, index=index)
+			EnemyButton(label="▲", enemy=enemy, PlayerHealth=PlayerHealth, action="UP", UserName=UserName, message=message, index=index, style=1),
+			EnemyButton(label="✦", enemy=enemy, PlayerHealth=PlayerHealth, action="DAMAGE", UserName=UserName, message=message, index=index, style=3),
+			EnemyButton(label="▼", enemy=enemy, PlayerHealth=PlayerHealth, action="DOWN", UserName=UserName, message=message, index=index, style=1),
+			EnemyButton(label="RUN", enemy=enemy, PlayerHealth=PlayerHealth, action="RUN", UserName=UserName, message=message, index=index)
 		]
 
 
@@ -609,11 +609,10 @@ class EnemyView:
 
 class EnemyButton(Button):
 
-	def __init__(self, label, enemy, PlayerHealth, color, action, UserName, message, index, style=2):
+	def __init__(self, label, enemy, PlayerHealth, action, UserName, message, index, style=2):
 		super().__init__(label=label, style=style)
 		self.enemy = enemy
 		self.PlayerHealth = PlayerHealth
-		self.color = color
 		self.action = action
 		self.UserName = UserName
 		self.message = message

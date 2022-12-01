@@ -22,6 +22,7 @@ from DataParsing import *
 from AjustingPoints import *
 from QualityOfLife import *
 from NPC import *
+# from NPCv2 import *
 
 intents = discord.Intents.none()
 intents.messages = True
@@ -225,6 +226,10 @@ async def on_message(message):
                 message.content = message.content[len(rpgCMD)::]
 
                 if IfCommand(message, "test", False):
+                    1
+                    pass
+
+                if IfCommand(message, "mv", False):
                     1
                     pass
 

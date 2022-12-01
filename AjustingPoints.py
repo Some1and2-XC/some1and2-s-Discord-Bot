@@ -633,5 +633,14 @@ if True:
 
 		return True
 
+# Map Functions with map & points file
+if True:
+
+	# Gets Data & NPC's that are close to `UserID`
+	def GetClose(UserID: int) -> list:
+		QUERY()
+		
+
+
 # lindex(GetPoints()).pprint()
 # lindex(GetMap()).pprint()
